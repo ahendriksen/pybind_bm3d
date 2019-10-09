@@ -38,14 +38,13 @@ bm3d(py::array_t<float, py::array::c_style | py::array::forcecast> img,
            width,        // width
            height,       // height
            channels,     // chnls
-           false,        // useSD_h
-           false,        // useSD_w
-           5,            // tau_2D_hard
-           4,            // tau_2D_wien
-           2,            // color_space
-           0,            // patch_size
-           0,            // nb_threads
-           true          // verbose
+           false,        // useSD_hard
+           false,        // useSD_wien
+           5,            // tau_2D_hard (5 == BIOR)
+           4,            // tau_2D_wien (4 == DCT)
+           2,            // color_space (2 == OPP)
+           0,            // patch_size  (0 == auto-size)
+           0,            // nb_threads  (0 == auto)
            false         // verbose
   );
 
