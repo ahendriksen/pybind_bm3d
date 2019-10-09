@@ -1,0 +1,7 @@
+pybind_bm3d
+===========
+
+.. toctree::
+   :maxdepth: 4
+
+   .. automodule:: pybind_bm3d

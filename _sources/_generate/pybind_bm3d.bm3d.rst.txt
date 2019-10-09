@@ -1,0 +1,6 @@
+pybind\_bm3d.bm3d
+=================
+
+.. currentmodule:: pybind_bm3d
+
+.. autofunction:: bm3d
