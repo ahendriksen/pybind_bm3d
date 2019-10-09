@@ -1,7 +1,7 @@
-#include <iostream>
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
 #include <bm3d.h>
+#include <iostream>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
 #include <vector>
 
 namespace py = pybind11;
@@ -9,77 +9,81 @@ using namespace pybind11::literals;
 
 py::array_t<float>
 bm3d(py::array_t<float, py::array::c_style | py::array::forcecast> img,
-     float sigma
-     ){
+     float sigma) {
 
-    auto img_buf  = img.request();
+  auto img_buf = img.request();
 
-    unsigned int channels;
-    if (img_buf.ndim == 2){
-        channels = 1;
-    } else if (img_buf.ndim == 3) {
-        channels = img_buf.shape[2];
-    } else {
-        throw std::invalid_argument("img dimensions must be 2 or 3.");
-    }
+  unsigned int channels;
+  if (img_buf.ndim == 2) {
+    channels = 1;
+  } else if (img_buf.ndim == 3) {
+    channels = img_buf.shape[2];
+  } else {
+    throw std::invalid_argument("img dimensions must be 2 or 3.");
+  }
 
-    std::cout << "img_buf shape: " << img_buf.shape[0] << ", " << img_buf.shape[1] << std::endl;
-    std::cout << "img_buf strides: " << img_buf.strides[0] << ", " << img_buf.strides[1] << std::endl;
+  std::cout << "img_buf shape: " << img_buf.shape[0] << ", " << img_buf.shape[1]
+            << std::endl;
+  std::cout << "img_buf strides: " << img_buf.strides[0] << ", "
+            << img_buf.strides[1] << std::endl;
 
-    unsigned int height = img_buf.shape[0];
-    unsigned int width = img_buf.shape[1];
+  unsigned int height = img_buf.shape[0];
+  unsigned int width = img_buf.shape[1];
 
+  std::vector<float> img_noisy((float *)img_buf.ptr,
+                               (float *)img_buf.ptr + img_buf.size);
+  std::cout << "img_noisey size: " << img_noisy.size() << std::endl;
 
-    std::vector<float> img_noisy((float*) img_buf.ptr, (float*) img_buf.ptr + img_buf.size);
-    std::cout << "img_noisey size: " << img_noisy.size() << std::endl;
+  std::vector<float> img_basic(img_buf.size);
+  std::vector<float> img_denoised(img_buf.size);
 
-    std::vector<float> img_basic(img_buf.size);
-    std::vector<float> img_denoised(img_buf.size);
+  run_bm3d(sigma,        // sigma
+           img_noisy,    // img_noisy
+           img_basic,    // img_basic
+           img_denoised, // img_denoised
+           width,        // width
+           height,       // height
+           channels,     // chnls
+           false,        // useSD_h
+           false,        // useSD_w
+           5,            // tau_2D_hard
+           4,            // tau_2D_wien
+           2,            // color_space
+           0,            // patch_size
+           0,            // nb_threads
+           true          // verbose
+  );
 
-    run_bm3d(sigma,             // sigma
-             img_noisy,         // img_noisy
-             img_basic,         // img_basic
-             img_denoised,      // img_denoised
-             width,             // width
-             height,            // height
-             channels,          // chnls
-             false,             // useSD_h
-             false,             // useSD_w
-             5,                 // tau_2D_hard
-             4,                 // tau_2D_wien
-             2,                 // color_space
-             0,                 // patch_size
-             0,                 // nb_threads
-             true               // verbose
-             );
+  auto result =
+      py::array_t<float>(img_buf.shape, img_buf.strides, img_denoised.data());
 
-    auto result = py::array_t<float>(img_buf.shape, img_buf.strides, img_denoised.data());
-
-    std::cout << "result size: " << result.size() << std::endl;
-    return result;
+  std::cout << "result size: " << result.size() << std::endl;
+  return result;
 }
 
 py::array_t<double>
 f(py::array_t<double, py::array::c_style | py::array::forcecast> img) {
-    auto img_buf  = img.request();
-    std::cout << "img_buf shape: " << img_buf.shape[0] << ", " << img_buf.shape[1] << std::endl;
-    std::cout << "img_buf shape: " << img_buf.strides[0] << ", " << img_buf.strides[1] << std::endl;
+  auto img_buf = img.request();
+  std::cout << "img_buf shape: " << img_buf.shape[0] << ", " << img_buf.shape[1]
+            << std::endl;
+  std::cout << "img_buf shape: " << img_buf.strides[0] << ", "
+            << img_buf.strides[1] << std::endl;
 
-    std::vector<double> foo_vec((double*) img_buf.ptr, (double*) img_buf.ptr + img_buf.size);
+  std::vector<double> foo_vec((double *)img_buf.ptr,
+                              (double *)img_buf.ptr + img_buf.size);
 
-    std::cout << "foo_vec size: " << foo_vec.size() << std::endl;
+  std::cout << "foo_vec size: " << foo_vec.size() << std::endl;
 
-    foo_vec[0] = 2020.0;
+  foo_vec[0] = 2020.0;
 
-    auto array = py::array_t<double>(img_buf.shape, img_buf.strides, foo_vec.data() );
-    foo_vec[0] = 1010.0;
-    return array;
+  auto array =
+      py::array_t<double>(img_buf.shape, img_buf.strides, foo_vec.data());
+  foo_vec[0] = 1010.0;
+  return array;
 }
 
-
-
 PYBIND11_MODULE(pybind_bm3d, m) {
-    m.doc() = R"pbdoc(
+  m.doc() = R"pbdoc(
         BM3D binding using pybind11
         ---------------------------
 
@@ -91,7 +95,7 @@ PYBIND11_MODULE(pybind_bm3d, m) {
            bm3d
     )pbdoc";
 
-    m.def("bm3d", &bm3d, R"pbdoc(
+  m.def("bm3d", &bm3d, R"pbdoc(
         Apply the BM3D image to a noisy input image
 
         Parameters
@@ -116,11 +120,11 @@ PYBIND11_MODULE(pybind_bm3d, m) {
 
     )pbdoc");
 
-    m.def("f", &f);
+  m.def("f", &f);
 
 #ifdef VERSION_INFO
-    m.attr("__version__") = VERSION_INFO;
+  m.attr("__version__") = VERSION_INFO;
 #else
-    m.attr("__version__") = "dev";
+  m.attr("__version__") = "dev";
 #endif
 }
