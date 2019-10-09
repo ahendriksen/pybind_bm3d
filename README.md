@@ -5,8 +5,8 @@ This module implements a python binding for the bm3d source code by Marc Lebrun.
 Marc Lebrun,
 An Analysis and Implementation of the BM3D Image Denoising Method,
 Image Processing On Line, 2 (2012), pp. 175–213.
-https://doi.org/10.5201/ipol.2012.l-bm3d
-http://www.ipol.im/pub/art/2012/l-bm3d/
+[](https://doi.org/10.5201/ipol.2012.l-bm3d)
+[](http://www.ipol.im/pub/art/2012/l-bm3d/)
 
 
 
@@ -14,12 +14,8 @@ http://www.ipol.im/pub/art/2012/l-bm3d/
 
 
 ```bash
-TODO
+conda install -c aahendriksen pybind_bm3d
 ```
-
-With the `setup.py` file included in this example, the `pip install` command will
-invoke CMake and build the pybind11 module as specified in `CMakeLists.txt`.
-
 
 ## Building the documentation
 
@@ -29,9 +25,8 @@ the extension module to generate beautiful documentation in a variety formats.
 The following command generates HTML-based reference documentation; for other
 formats please refer to the Sphinx manual:
 
-TODO
-
- - `cd cmake_example/docs`
+ - `pip install recommonmark sphinx_rtd_theme sphinx`
+ - `cd docs`
  - `make html`
 
 
